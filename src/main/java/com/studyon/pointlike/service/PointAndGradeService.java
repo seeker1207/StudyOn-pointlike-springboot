@@ -6,8 +6,11 @@ import com.studyon.pointlike.domain.PointAndGrade;
 import com.studyon.pointlike.domain.PointAndGradeRepository;
 import com.studyon.pointlike.domain.PointValue;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -20,10 +23,15 @@ public class PointAndGradeService {
 
         return new PointAndGradeResponseDto(pointAndGrade);
     }
+
     @Transactional
     public PointAndGradeResponseDto makeUserPoint(PointAndGradeRequestDto pointAndGradeRequestDto) {
         PointAndGrade pointAndGrade = pointAndGradeRequestDto.toDomain();
-        pointAndGradeRepository.save(pointAndGrade);
+        Optional<PointAndGrade> pointOpt = Optional
+                .ofNullable(pointAndGradeRepository.findPointAndGradeByUserId(pointAndGrade.getUserId()));
+
+        if (pointOpt.isEmpty()) pointAndGradeRepository.save(pointAndGrade);
+        else return new PointAndGradeResponseDto(pointOpt.get());
 
         return new PointAndGradeResponseDto(pointAndGrade);
     }

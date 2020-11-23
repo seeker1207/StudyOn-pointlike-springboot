@@ -1,5 +1,6 @@
 package com.studyon.pointlike.domain;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
+@Rollback(value = false)
 class PointAndGradeRepositoryTest {
     @Autowired
     PointAndGradeRepository pointAndGradeRepository;
@@ -28,6 +30,7 @@ class PointAndGradeRepositoryTest {
         pointAndGradeRepository.save(pointAndGrade);
         this.testPointAndGrade = pointAndGrade;
     }
+
     @Test
     public void 유저_포인트_정보생성하기() {
         PointAndGrade pointAndGrade = PointAndGrade.builder()
@@ -45,7 +48,7 @@ class PointAndGradeRepositoryTest {
     }
 
     @Test
-    @Rollback(value = false)
+//    @Rollback(value = false)
     public void 방입장후_포인트_감소하기(){
 
         int beforePoint = testPointAndGrade.getPoint();
@@ -73,5 +76,18 @@ class PointAndGradeRepositoryTest {
         assertEquals(beforePoint - PointValue.MAKE_ROOM.getPoint(), afterPoint);
     }
 
+    @Test
+    public void 포인트_환급하기() {
+
+        int beforePoint = testPointAndGrade.getPoint();
+
+        // 방장일 경우
+        testPointAndGrade.refund(true);
+
+        int afterPoint = pointAndGradeRepository.findById(testPointAndGrade.getId())
+                .get().getPoint();
+
+        assertEquals(beforePoint + PointValue.MAKE_ROOM.getPoint(), afterPoint);
+    }
 
 }

@@ -4,6 +4,7 @@ import com.studyon.pointlike.controller.dto.PointAndGradeRequestDto;
 import com.studyon.pointlike.controller.dto.PointAndGradeResponseDto;
 import com.studyon.pointlike.service.PointAndGradeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,6 +26,8 @@ public class PointAndGradeController {
 
     @PutMapping("/point-grade")
     public PointAndGradeResponseDto modifyUserPoint(@RequestBody PointAndGradeRequestDto pointAndGradeRequestDto) {
+        String stateString = pointAndGradeRequestDto.getState().replaceAll("\\B(?=[A-Z])","_");
+        pointAndGradeRequestDto.setState(stateString.toUpperCase());
 
         if (UserState.valueOf(pointAndGradeRequestDto.getState()) == UserState.REFUND){
             return pointAndGradeService.refundPoint(pointAndGradeRequestDto);
